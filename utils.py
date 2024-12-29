@@ -1,21 +1,16 @@
 import torch
 import numpy as np
-from torch_scatter import scatter
-
 import argparse
 
 
 def parse():
-    p = argparse.ArgumentParser("BayesHGNN: 贝叶斯超图神经网络", formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    p = argparse.ArgumentParser("VBMGDL: Variational Bayesian Inference with Hybrid Graph Deep Learning", formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     p.add_argument('--data', type=str, default='DATA1_zhang', help='data name ')
     p.add_argument('--dataset', type=str, default='./DATA', help='dataset name')
-    p.add_argument('--model-name', type=str, default='VBMGD', help='贝叶斯混合图神经网络')
+    p.add_argument('--model-name', type=str, default='VBMGDL', help='VBMGDL')
     p.add_argument('--activation', type=str, default='tanh', help='activation layer between MGConvs')
     p.add_argument('--nlayer', type=int, default=2, help='number of hidden layers')
-    # p.add_argument('--F1', type=int, default=50, help='特征输入层的维度')
-    # p.add_argument('--F2', type=int, default=20, help='隐藏层的维度')
-    p.add_argument('--rank', type=int, default=10, help='子空间的维度')
-    # p.add_argument('--N-num', type=int, default=10, help='邻居个数')
+    p.add_argument('--rank', type=int, default=10, help='rank')
     p.add_argument('--lr', type=float, default=0.001, help='learning rate')
     p.add_argument('--L2',type=float,default=1e-4,help = 'weight_decay')
     p.add_argument('--epochs', type=int, default=50, help='number of epochs to train')
@@ -36,29 +31,20 @@ class Metrics():
         self.val_top = []
 
     def hits_ndcg(self):
-        #这表示从self.test_data[i, ：]中提取self.step * self.batch_size, (self.step + 1) * self.batch_size
-        #从self.predict_1中也提取对应位置的
-        #它的作用是从self.batch_size个样本中，判断前self.top个样本是否有命中，并且计算ndcg
         for i in range(self.step * self.batch_size, (self.step + 1) * self.batch_size):
             g = []
             g.extend([self.test_data[i, 3], self.predict_1[i].item()])
             self.pair.append(g)
         np.random.seed(1)
         np.random.shuffle(self.pair)
-        pre_val = sorted(self.pair, key=lambda item: item[1], reverse=True) #这个表示的意思应该是按照得分的降序进行排序
+        pre_val = sorted(self.pair, key=lambda item: item[1], reverse=True)
         self.val_top = pre_val[0: self.top]
-
-        #self.hit取值为1或0，取值为1表示前self.top中有命中的，若取值为0表示前self.top中没有命中的
-        #self.dcgsum=1，表示第一个命中。若命中的排名靠后，self.dcgsum越小。
         for i in range(len(self.val_top)):
-            if self.val_top[i][0] == 1: #前i个里面是关联
-                self.hit = self.hit + 1  #命中个数加1
-                #self.top 里面有多个，若排名第一的被命中，self.dcgsum = 1/log2(0 + 2)=1
-                #若排名第一的没有被命中，排名第二的被命中，则self.dcgsum = 1/log2(1 + 2)
-                #若排名第二的没有被命中，排名第三的被命中，则self.dcgsum = 1/log2(2 + 2)
-                self.dcgsum = (2 ** self.val_top[i][0] - 1) / np.log2(i + 2) #(2 ** self.val_top[i][0] - 1) 这应该都是1   等价于1/np.log2(i+2)
+            if self.val_top[i][0] == 1:
+                self.hit = self.hit + 1
+                self.dcgsum = (2 ** self.val_top[i][0] - 1) / np.log2(i + 2)
                 break
-        ideal_list = sorted(self.val_top, key=lambda item: item[0], reverse=True)  #按照关联进行排序，关联的排在前面
+        ideal_list = sorted(self.val_top, key=lambda item: item[0], reverse=True)
         for i in range(len(ideal_list)):
             if ideal_list[i][0] == 1:
                 self.idcgsum = (2 ** ideal_list[i][0] - 1) / np.log2(i + 2)
@@ -66,7 +52,7 @@ class Metrics():
         if self.idcgsum == 0:
             self.ndcg = 0
         else:
-            self.ndcg = self.dcgsum / self.idcgsum  #感觉这个self.idcgsum没用，self.idcgsum只能取0或1
+            self.ndcg = self.dcgsum / self.idcgsum
         if self.ndcg != self.dcgsum:
             print('程序出错！'*10)
         return self.hit, self.ndcg
@@ -81,7 +67,7 @@ def hit_ndcg_value(pred_val, val_data, top):
         hit, ndcg = metrix.hits_ndcg()
         hits = hits + hit
         ndcg_val = ndcg_val + ndcg
-    hits = hits / int((len(val_data)) / 30) #int((len(val_data)) / 30) 这个表示组数
+    hits = hits / int((len(val_data)) / 30)
     ndcg = ndcg_val / int((len(val_data)) / 30)
     return hits, ndcg
 
@@ -115,7 +101,6 @@ def Loss_fun_opt(FGHW, GHW,lambdas,args):
 
 
 def Const_hyper(args,sim_H,sim_W,train_tensor):
-    #Step1:根据相似性构建图
     #sg
     for i in range(len(sim_H)):
         sim_H[i,i]=1
@@ -145,14 +130,9 @@ def Const_hyper(args,sim_H,sim_W,train_tensor):
     edges_T = torch.arange(NT).unsqueeze(1).expand(NT, 3)+Ng+Nh
     hyper_3 = torch.cat((indice_T.reshape(1, NT * 3), edges_T.reshape(1, NT * 3)), dim=0)
     wghw = torch.cat([torch.ones(1,3) for idx in indice_T],dim=1).squeeze()
-
-
     synergy_graph = hyper_3
-    #model2中的两个参数 V和E
     args.edge_HGW = synergy_graph.to(args.device)
     args.weight = wghw.to(args.device)
-
-
     return args
 
 

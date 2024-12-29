@@ -1,4 +1,3 @@
-# 总epoch运行时间：65.30734252929688秒
 import tensorly as tl
 import numpy as np
 import torch
@@ -44,16 +43,7 @@ class Model(object):
         self.paramater = kwargs
     def VBMGDL(self,Y,args):
         I, J, K = Y.shape
-        # R = 10
         R = args.rank
-
-        # 初始化
-        # Y = torch.tensor(Y,dtype = torch.float32)  #
-        Fg = torch.randn(I,R,dtype=torch.float32)
-        Fh = torch.randn(J,R,dtype=torch.float32)
-        Fw = torch.randn(K, R, dtype=torch.float32)
-
-        # 初始化 G, H, W
         G_mu = torch.randn(I, R)
         G_sigma = torch.tile(torch.eye(R).unsqueeze(0), (I, 1, 1))
 
@@ -63,21 +53,18 @@ class Model(object):
         W_mu = torch.randn(K, R)
         W_sigma = torch.tile(torch.eye(R).unsqueeze(0), (K, 1, 1))
 
-        ####初始化{Fg,Fh,Fw}
+        #
         lambdas = torch.ones(R)
         GHW = torch.cat((G_mu,H_mu,W_mu),dim=0).to(args.device)
-        loss_func = torch.nn.MSELoss().to(args.device)
         optimizer = torch.optim.Adam(self.model.parameters(), lr=args.lr, weight_decay=args.L2)
 
         for epoch in range(args.epochs):
             self.model.train()
             loss_train = 0
-            true_ls, pre_ls = [], []
             optimizer.zero_grad()
 
             FGHW = self.model(args)
             loss = Loss_fun_opt(FGHW, GHW,lambdas,args)
-            # print(loss.item())
             loss.backward()
             optimizer.step()
             loss_train += loss.item()
@@ -87,7 +74,7 @@ class Model(object):
 
 
 
-        # 计算 covariances
+        #
         Bg = G_sigma.reshape(I, R * R)
         Bh = H_sigma.reshape(J, R * R)
         Bw = W_sigma.reshape(K, R * R)
@@ -131,7 +118,7 @@ class Model(object):
                 W_mu[k, :] = W_sigma[k,:, :] @ (FslashY[:, k] + lambdas.diag() @ Fw[k,:])  # Posterior expectation
             Bw = W_sigma.reshape(K,R * R) + khatri_rao([W_mu.T, W_mu.T]).T
 
-            ####判断是否跳出
+            ##
             P1 = tl.cp_to_tensor((weight, [G_mu, H_mu, W_mu]))
             error_itr = torch.norm(P0-P1)/torch.norm(P0)
             if error_itr<tol:
@@ -144,7 +131,7 @@ class Model(object):
 
             if torch.any(kx2 < 0):
                 print(it)
-                raise ValueError('错误')
+                raise ValueError('error')
 
             kx = torch.sqrt(kx2)
 
@@ -161,7 +148,6 @@ class Model(object):
 
             # update {Fg,Fh,Fw}
             if it % 20 ==0:
-                print(f'当前误差为{error_itr}')
                 GHW = torch.cat((G_mu, H_mu, W_mu), dim=0).to(args.device)
                 for epoch in range(args.epochs):
                     self.model.train()
@@ -173,7 +159,6 @@ class Model(object):
                     optimizer.step()
                     loss_train += loss.item()
                 FGHW = FGHW.detach().to('cpu')
-                print(f'特征最大值{FGHW.max()},特征最小值{FGHW.min()}')
                 Fg, Fh, Fw = FGHW[:I], FGHW[I:I + J], FGHW[I + J:]
                 print(FGHW.norm())
 
@@ -186,7 +171,6 @@ class Model(object):
 
     # 需要定义的辅助函数
     def jisuan_lamb(self,kx):
-        # sig_kx = 1 / (1 + torch.exp(-kx))
         sig_kx = kx.sigmoid()
         lam_kx = 1.0 / (2 * kx) * (sig_kx - 0.5)
         return lam_kx
