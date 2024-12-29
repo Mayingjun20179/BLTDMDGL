@@ -236,7 +236,7 @@ if __name__ == '__main__':
     print(result_CV_dis)
 
 
-    #####读取数据data2
+    #####data2
     seed = 1
     set_seed(seed)
     root = './DATA2_accu'
