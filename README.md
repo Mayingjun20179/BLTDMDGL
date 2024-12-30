@@ -8,9 +8,10 @@ The exploration of potential drug-microbe-disease associations allows us to unde
 ![image](https://github.com/user-attachments/assets/22354f52-5652-4b98-80c0-e88529465d33)
 
 #Environment Requirement
+
 tensorly==0.8.1
 
-torch==2.4.1+cu121
+torch==2.4.1 ((GPU version))
 
 pandas==2.0.3
 
