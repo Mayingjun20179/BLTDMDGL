@@ -20,24 +20,24 @@ class GetData(object):
 
     def __get_data__(self):
 
-        #drug数据
+        #drug
         drug_file = osp.join(self.root,'drug_inf.csv')
         batch_drug,drug_dict = drug_fea_process(drug_file)
 
-        #disease数据
+        #disease
         dis_file = osp.join(self.root,'dis_sim.csv')
         dis_sim = pd.read_csv(dis_file, index_col=0)
         dis_sim_value = torch.from_numpy(dis_sim.to_numpy()).type(torch.float32)
         dis_dict = {index: value for value, index in enumerate(dis_sim.index)}
 
-        #micro数据
+        #micro
         mic_file = osp.join(self.root,'micro_sim.csv')
         mic_sim = pd.read_csv(mic_file,index_col=0)
         mic_sim_value = torch.from_numpy(mic_sim.to_numpy()).type(torch.float32)
         mic_dict = {index:value for value,index in enumerate(mic_sim.index)}
 
 
-        #连接张量
+        #
         adj_file = osp.join(self.root,'drug_micro_dis_triple.csv')
         adj_data = pd.read_csv(adj_file)
         adj_ind = [(drug_dict[adj_data.loc[i,'pubchem_id']],mic_dict[adj_data.loc[i,'micro_tid']],dis_dict[adj_data.loc[i,'dis_MESH']]) for i in range(adj_data.shape[0])]
@@ -49,7 +49,7 @@ class GetData(object):
         adj_tensor = torch.zeros(N_drug,N_mic,N_dis)
         adj_tensor[adj_ind[:,0],adj_ind[:,1],adj_ind[:,2]]=1
 
-        #adj_tensor中，0所在的位置
+        #
         index_0 = np.array(np.where(adj_tensor.numpy() == 0)).T
         N_0 = index_0.shape[0]
 
@@ -62,7 +62,7 @@ def drug_fea_process(smiles_file):
     smile_graph = []
     for index,row in drug_inf.iterrows():
         smile = row['smile']
-        g = smile_to_graph(smile) #g[0]表示原子个数，g[1]特征列表，特征维度为78，g[2]连接列表，起始点到终止点
+        g = smile_to_graph(smile) 
         smile_graph.append(g)
     drug_num = len(smile_graph)
     dru_data = GraphDataset_v(xc=smile_graph, cid=[i for i in range(drug_num + 1)])
