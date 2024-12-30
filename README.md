@@ -11,7 +11,7 @@ The exploration of potential drug-microbe-disease associations allows us to unde
 
 tensorly==0.8.1
 
-torch==2.4.1 ((GPU version))
+torch==2.4.1 (GPU version)
 
 pandas==2.0.3
 
