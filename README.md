@@ -25,6 +25,7 @@ torch-geometric==2.6.1
 torch_scatter==2.1.2+pt24cu121
 
 #Usage
+
 First, install all the packages required by “requirements.txt”.
 
 Second, run the program “Main_VBMGDL_CV.py” to get all the prediction results of VBMGDL for the two benchmark datasets in the scenarios of CV_triplet, CV_drug, CV_micro and CV_dis.
