@@ -71,9 +71,6 @@ class Model(object):
         FGHW = FGHW.detach().to('cpu')
         Fg, Fh, Fw = FGHW[:I], FGHW[I:I + J], FGHW[I + J:]
         print(FGHW.norm())
-
-
-
         #
         Bg = G_sigma.reshape(I, R * R)
         Bh = H_sigma.reshape(J, R * R)

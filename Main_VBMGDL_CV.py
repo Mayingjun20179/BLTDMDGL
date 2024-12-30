@@ -6,8 +6,9 @@ from utils import *
 from DATA1_zhang.data import GetData as GetData1
 from DATA2_accu.data import GetData as GetData2
 from VBMGDL_model import Model,set_seed
-import time
 from Evaluate import cv_tensor_model_evaluate,get_metrics,cal_recall_ndcg
+import pandas as pd
+
 
 class Experiments(object):
     def __init__(self, GHW_data, model_name='VBMGDL',**kwargs):
@@ -37,20 +38,22 @@ class Experiments(object):
             train_tensor[test_index] = 0
             train_tensor = torch.tensor(train_tensor,dtype=torch.float32)
 
-            ###
+            ###Constructing Hybrid graphs
             args = Const_hyper(args,self.GHW_data.mic_sim,self.GHW_data.dis_sim,train_tensor)
 
+            #Predictions of the VBMGDL model
             self.model = Model(args, self.model_name)
             predict_tensor = self.model.VBMGDL(train_tensor, args)
-            #
+
+            #Randomized Generation of Test Negatives and Model Evaluation
             for i in range(20):
                 jieguo = cv_tensor_model_evaluate(self.GHW_data, predict_tensor, test_index, i, prop)
                 metrics_tensor = metrics_tensor + jieguo
                 result_100.append(jieguo)
 
-        # print(metrics_tensor / (k + 1))
-        result = np.around(metrics_tensor / 100, decimals=4)
-        result_100 = np.array(result_100)
+        # Get result
+        result = pd.DataFrame(np.around(metrics_tensor / 100, decimals=4)[:,0:3],columns=['AUPR','AUC','F1'])
+        result_100 = pd.DataFrame(np.array(result_100)[:,0:3],columns=['AUPR','AUC','F1'])
         print(result)
         return result, result_100
 
@@ -95,7 +98,8 @@ class Experiments(object):
             metrics += result_g/N_test
             print(result_g/N_test)
 
-        result = np.around(metrics / k_folds, decimals=4)
+        result = pd.DataFrame(np.around(metrics[np.newaxis, :] / k_folds, decimals=4)[:,3:],
+                               columns=['HR@1', 'HR@0.1', 'HR@0.01','NDCG@1','NDCG@0.1','NDCG@0.01'])
         return result
 
     def CV_mic(self,args):
@@ -138,7 +142,8 @@ class Experiments(object):
             metrics += result_h/N_test
             print(result_h/N_test)
 
-        result = np.around(metrics / k_folds, decimals=4)
+        result = pd.DataFrame(np.around(metrics[np.newaxis, :] / k_folds, decimals=4)[:, 3:],
+                              columns=['HR@1', 'HR@0.1', 'HR@0.01', 'NDCG@1', 'NDCG@0.1', 'NDCG@0.01'])
         return result
 
     def CV_dis(self,args):
@@ -180,7 +185,8 @@ class Experiments(object):
             metrics += result_w/N_test
             print(result_w/N_test)
 
-        result = np.around(metrics / k_folds, decimals=4)
+        result = pd.DataFrame(np.around(metrics[np.newaxis, :] / k_folds, decimals=4)[:, 3:],
+                              columns=['HR@1', 'HR@0.1', 'HR@0.01', 'NDCG@1', 'NDCG@0.1', 'NDCG@0.01'])
         return result
 
 
@@ -202,13 +208,12 @@ if __name__ == '__main__':
     # # CV_triplet
     prop = [1,10,100]   #1/ρ
     for kk in prop:
-        start_time = time.time()
         args.triple = True
         result_CV_triplet, result_CV_triplet100 = experiment.CV_triplet(args,kk)
         file_path = './result1_zhang/VBMGD_triplet' +'_prop_'+str(kk)+ '.txt'
-        np.savetxt(file_path, np.array(result_CV_triplet))
+        result_CV_triplet.to_csv(file_path, index=False, sep='\t')
         file_path = './result1_zhang/VBMGD_triplet_100' +'_prop_'+str(kk)+ '.txt'
-        np.savetxt(file_path, np.array(result_CV_triplet100))
+        result_CV_triplet100.to_csv(file_path,sep='\t')
         print(result_CV_triplet)
     # #
     # #CV_drug
@@ -216,7 +221,7 @@ if __name__ == '__main__':
     args.topK = [1,5,10]
     result_CV_drug = experiment.CV_drug(args)
     file_path = './result1_zhang/VBMGD_drug' + '.txt'
-    np.savetxt(file_path, np.array(result_CV_drug))
+    result_CV_drug.to_csv(file_path, index=False, sep='\t')
     print(result_CV_drug)
 
     # CV_mic
@@ -224,7 +229,7 @@ if __name__ == '__main__':
     args.topK = [1, 5, 10]
     result_CV_mic = experiment.CV_mic(args)
     file_path = './result1_zhang/VBMGD_mic' + '.txt'
-    np.savetxt(file_path, np.array(result_CV_mic))
+    result_CV_mic.to_csv(file_path,index=False, sep='\t')
     print(result_CV_mic)
 
     #CV_dis
@@ -232,7 +237,7 @@ if __name__ == '__main__':
     args.topK = [1,5,10]
     result_CV_dis = experiment.CV_dis(args)
     file_path = './result1_zhang/VBMGD_dis' + '.txt'
-    np.savetxt(file_path, np.array(result_CV_dis))
+    result_CV_dis.to_csv(file_path,index=False, sep='\t')
     print(result_CV_dis)
 
 
@@ -248,13 +253,12 @@ if __name__ == '__main__':
     # CV_triplet
     prop = [1,10,100]   #1/ρ
     for kk in prop:
-        start_time = time.time()
         args.triple = True
         result_CV_triplet, result_CV_triplet100 = experiment.CV_triplet(args,kk)
         file_path = './result2_accu/VBMGD_triplet' +'_prop_'+str(kk)+ '.txt'
-        np.savetxt(file_path, np.array(result_CV_triplet))
+        result_CV_triplet.to_csv(file_path,index=False,sep='\t')
         file_path = './result2_accu/VBMGD_triplet_100' +'_prop_'+str(kk)+ '.txt'
-        np.savetxt(file_path, np.array(result_CV_triplet100))
+        result_CV_triplet100.to_csv(file_path,sep='\t')
         print(result_CV_triplet)
 
     #CV_drug
@@ -262,20 +266,20 @@ if __name__ == '__main__':
     args.topK = [1,5,10]
     result_CV_drug = experiment.CV_drug(args)
     file_path = './result2_accu/VBMGD_drug' + '.txt'
-    np.savetxt(file_path, np.array(result_CV_drug))
+    result_CV_drug.to_csv(file_path,index=False,sep='\t')
     print(result_CV_drug)
     #
     #CV_mic
     args.triple = False
     result_CV_mic = experiment.CV_mic(args)
     file_path = './result2_accu/VBMGD_mic' + '.txt'
-    np.savetxt(file_path, np.array(result_CV_mic))
+    result_CV_mic.to_csv(file_path,index=False,sep='\t')
     print(result_CV_mic)
 
     #CV_dis
     args.triple = False
     result_CV_dis = experiment.CV_dis(args)
     file_path = './result2_accu/VBMGD_dis' + '.txt'
-    np.savetxt(file_path, np.array(result_CV_dis))
+    result_CV_dis.to_csv(file_path,index=False,sep='\t')
     print(result_CV_dis)
 
