@@ -159,24 +159,24 @@ def _generate_G_from_H(H, variable_weight=False):
     :param variable_weight: whether the weight of hyperedge is variable
     :return: G
     """
-    H = np.array(H)  # 超边矩阵
+    H = np.array(H)  
     n_edge = H.shape[1]
     # the weight of the hyperedge
-    W = np.ones(n_edge)  # 超边权重矩阵
+    W = np.ones(n_edge)  
     # the degree of the node
-    DV = np.sum(H * W, axis=1)  # 节点度; (12311,)
+    DV = np.sum(H * W, axis=1)  
     # the degree of the hyperedge
-    DE = np.sum(H, axis=0)  # 超边的度; (24622,)
+    DE = np.sum(H, axis=0)  
 
-    invDE = np.mat(np.diag(np.power(DE, -1)))  # DE^-1; 建立对角阵
+    invDE = np.mat(np.diag(np.power(DE, -1)))  
     invDE[np.isinf(invDE)] = 0
     DV2 = np.mat(np.diag(np.power(DV, -0.5)))
-    DV2[np.isinf(DV2)] = 0# DV^-1/2
-    W = np.mat(np.diag(W))  # 超边权重矩阵
-    H = np.mat(H)  # 超边矩阵
+    DV2[np.isinf(DV2)] = 0
+    W = np.mat(np.diag(W)) 
+    H = np.mat(H)
     HT = H.T
 
-    if variable_weight:  # 超边权重是否可变
+    if variable_weight:
         DV2_H = DV2 * H
         invDE_HT_DV2 = invDE * HT * DV2
         return DV2_H, W, invDE_HT_DV2
