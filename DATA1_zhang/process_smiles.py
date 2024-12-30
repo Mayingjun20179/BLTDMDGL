@@ -1,9 +1,10 @@
+#Referred from L. Liu, F. Huang, X. Liu et al. “Multi-view Contrastive Learning Hypergraph Neural Network for Drug-Microbe-Disease Association Prediction,” in Proceedings of the Thirty-Second International Joint Conference on Artificial Intelligence (IJCAI-23).
 import numpy as np
 from torch_geometric.data import Dataset, DataLoader, Batch, InMemoryDataset
 from torch_geometric import data as DATA
 import torch
 from rdkit import Chem
-# conda install -c conda-forge rdkit  在cmd中
+# conda install -c conda-forge rdkit 
 import networkx as nx
 
 
@@ -35,14 +36,14 @@ class GraphDataset_v(Dataset):
         data_list = []
         data_len = len(xc)
         for i in range(data_len):
-            c_size, features, edge_index = xc[i]  #表示包含的分子数，fature表示分子的特征列表，edge_index 表示边列表
+            c_size, features, edge_index = xc[i]  
             GCNData = DATA.Data(x=torch.FloatTensor(features),
                                 edge_index=torch.LongTensor(edge_index)
                                 )
-            GCNData.__setitem__('c_size', torch.LongTensor([c_size])) #增加项 分子个数
+            GCNData.__setitem__('c_size', torch.LongTensor([c_size])) #
             # GCNData.__setitem__('disease', torch.FloatTensor([disease]))
             # GCNData.__setitem__('micro_all', torch.FloatTensor([micro]))
-            GCNData.__setitem__('cid', torch.LongTensor([cid[i]])) #增加标签 表示第几个图
+            GCNData.__setitem__('cid', torch.LongTensor([cid[i]])) #
             # GCNData.__setitem__('did', torch.LongTensor([did[i]]))
             # GCNData.__setitem__('mid', torch.LongTensor([mid[i]]))
             # append graph, label and target sequence to data list
