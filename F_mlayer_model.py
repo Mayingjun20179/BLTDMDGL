@@ -4,7 +4,6 @@ from torch_geometric.nn import GCNConv,HypergraphConv, global_max_pool, global_m
 from utils import reset
 import tensorly as tl
 tl.set_backend('pytorch')
-###利用GCN从G_sim,H_sim中获取特征，利用HGCN从G-H-W中获取特征
 
 class HgnnEncoder(torch.nn.Module):
     def __init__(self,in_channels, out_channels,args):
@@ -26,7 +25,6 @@ class HgnnEncoder(torch.nn.Module):
 
         return x_HY
 
-#将drug的信息转化为特征,mic、dis的相似性转化为相同长度的向量
 class GcnEncoder(nn.Module):
     def __init__(self,dim_H, dim_W, output,args):
         super(GcnEncoder, self).__init__()
@@ -36,7 +34,7 @@ class GcnEncoder(nn.Module):
 
         #-------G_layer  （drug）
         self.use_GMP = args.use_GMP
-        self.conv_g = nn.ModuleList([GCNConv(dim_G, args.rank)])  #这个表示输入层
+        self.conv_g = nn.ModuleList([GCNConv(dim_G, args.rank)])  
         self.batch_g = nn.ModuleList([nn.BatchNorm1d(args.rank)])
         for i in range(args.nlayer-1):
             self.conv_g.append(GCNConv(args.rank, args.rank))
@@ -44,7 +42,7 @@ class GcnEncoder(nn.Module):
 
 
         # -------H_layer  (mic)
-        self.conv_h = nn.ModuleList([GCNConv(dim_H, args.rank)])  #这个表示输入层
+        self.conv_h = nn.ModuleList([GCNConv(dim_H, args.rank)]) 
         self.batch_h = nn.ModuleList([nn.BatchNorm1d(args.rank)])
         for i in range(args.nlayer-1):
             self.conv_h.append(GCNConv(args.rank, args.rank))
@@ -52,14 +50,13 @@ class GcnEncoder(nn.Module):
 
 
         # -------W_layer  (dis)
-        self.conv_w = nn.ModuleList([GCNConv(dim_W, args.rank)])  #这个表示输入层
+        self.conv_w = nn.ModuleList([GCNConv(dim_W, args.rank)]) 
         self.batch_w = nn.ModuleList([nn.BatchNorm1d(args.rank)])
         for i in range(args.nlayer-1):
             self.conv_w.append(GCNConv(args.rank, args.rank))
             self.batch_w.append(nn.BatchNorm1d(args.rank))
         self.act = nn.Tanh()
 
-    #对于药物，不用逐个图进行GNN，而是合并后的大图进行GNN
     def forward(self, H_feature,W_feature, args):
 
         G_feature, edge_G, batch_G = self.drug_inf.x, self.drug_inf.edge_index, self.drug_inf.batch
@@ -102,7 +99,7 @@ class Hybridgraphattention(torch.nn.Module):
         else:
             N_fea = args.nlayer
 
-        self.G_weight = nn.Parameter(torch.ones(N_fea))  #根据潜在特征计算相似性的时候使用
+        self.G_weight = nn.Parameter(torch.ones(N_fea))  
         self.H_weight = nn.Parameter(torch.ones(N_fea))
         self.W_weight = nn.Parameter(torch.ones(N_fea))
         self.reset_parameters()
@@ -113,9 +110,8 @@ class Hybridgraphattention(torch.nn.Module):
 
     def forward(self,args):
         Ng,Nh,Nw = args.G_num,args.H_num,args.W_num
-        R = args.rank   #输入特征的维度
+        R = args.rank   
 
-        ###计算这些相似性的低维特征
         torch.manual_seed(1)
         G_fea = torch.randn(Ng, R).to(args.device)
         H_fea = torch.randn(Nh, R).to(args.device)
@@ -123,19 +119,19 @@ class Hybridgraphattention(torch.nn.Module):
 
         G_emb,H_emb,W_emb = [],[],[]
 
-        #True表示HGNN+GNN
+        #True:HGNN+GNN
         if args.triple == True:
 
-            # step1：从G-H-W超图中获取特征
+            # step1
             GHW_fea = torch.cat((G_fea,H_fea,W_fea),dim=0)
-            GHW_embed = self.hgnn_encoder(GHW_fea, args)   #获取两层特征
+            GHW_embed = self.hgnn_encoder(GHW_fea, args)   
             for i in range(args.nlayer):
                 G_emb1, H_emb1, W_emb1 = GHW_embed[i][:Ng], GHW_embed[i][Ng:Ng +Nh], GHW_embed[i][Ng + Nh:]
                 G_emb.append(G_emb1)
                 H_emb.append(H_emb1)
                 W_emb.append(W_emb1)
 
-            # step2：从G,H的相似性图中获取特征
+            # step2
             x_G,x_H,x_W = self.gcn_encoder(H_fea,W_fea, args)
             for i in range(args.nlayer):
                 G_emb.append(x_G[i])
@@ -150,7 +146,7 @@ class Hybridgraphattention(torch.nn.Module):
             H_emb_all = torch.stack([H_emb[i] * H_weight[i] for i in range(len(H_emb))]).sum(dim=0)
             W_emb_all = torch.stack([W_emb[i] * W_weight[i] for i in range(len(W_emb))]).sum(dim=0)
             graph_embed = torch.cat((G_emb_all,H_emb_all,W_emb_all),dim=0)
-        else:  #否则只使用GNN
+        else:
             x_G,x_H,x_W = self.gcn_encoder(H_fea,W_fea, args)
             for i in range(args.nlayer):
                 G_emb.append(x_G[i])
