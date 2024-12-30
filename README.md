@@ -23,7 +23,7 @@ networkx==2.8.8
 
 torch-geometric==2.6.1
 
-torch_scatter==2.1.2+pt24cu121
+torch_scatter==2.1.2
 
 #Usage
 
