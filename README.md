@@ -6,3 +6,25 @@ The exploration of potential drug-microbe-disease associations allows us to unde
 #The workflow of our proposed VBMGDL model
 
 ![image](https://github.com/user-attachments/assets/22354f52-5652-4b98-80c0-e88529465d33)
+
+#Environment Requirement
+tensorly==0.8.1
+
+torch==2.4.1+cu121
+
+pandas==2.0.3
+
+deepchem==2.8.0
+
+rdkit==2022.9.4
+
+networkx==2.8.8
+
+torch-geometric==2.6.1
+
+torch_scatter==2.1.2+pt24cu121
+
+#Usage
+First, install all the packages required by “requirements.txt”.
+
+Second, run the program “Main_VBMGDL_CV.py” to get all the prediction results of VBMGDL for the two benchmark datasets in the scenarios of CV_triplet, CV_drug, CV_micro and CV_dis.
