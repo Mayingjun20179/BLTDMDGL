@@ -2,11 +2,11 @@ import numpy as np
 
 
 def cv_tensor_model_evaluate(GHW_data, predict_tensor, test_index, seed,prop):
-
-    test_po_num = np.array(test_index).shape[1]   #正例的个数
-    test_index_0 = GHW_data.index_0.T   #0所在的位置
+#Referred from F. Huang, X. Yue, Z. Xiong et al., “Tensor decomposition with relational constraints for predicting multiple types of microRNA-disease associations,” Brief Bioinform, vol. 22, no. 3, May 20, 2021.
+    test_po_num = np.array(test_index).shape[1]   
+    test_index_0 = GHW_data.index_0.T   
     np.random.seed(seed)
-    random_ind = np.random.randint(0, GHW_data.N_0, size=prop*test_po_num) #负样本的数量是正样本的prop倍
+    random_ind = np.random.randint(0, GHW_data.N_0, size=prop*test_po_num) 
     test_ne_index = tuple(test_index_0[:, random_ind])
     real_score = np.column_stack(
         (np.mat(GHW_data.adj_tensor[test_ne_index].flatten()), np.mat(GHW_data.adj_tensor[test_index].flatten())))
@@ -69,42 +69,41 @@ def get_metrics(real_score, predict_score):
     return [aupr[0, 0], auc[0, 0], f1_score, accuracy, recall, specificity, precision]
 
 
-def cal_recall_ndcg(real_score, predict_score,topK):
-    #real_score为1行向量，实际标签
-    #predict_score为1行向量，预测标签
-    #topK表示前几个
 
+
+def cal_recall_ndcg(real_score, predict_score,topK):
+#Referred from C. Chen, M. Zhang, Y. Zhang et al., “Efficient Neural Matrix Factorization without Sampling for Recommendation,” ACM Transactions on Information Systems, vol. 38, no. 2, pp. 1-28, 2020.
     real_score = np.array(real_score).squeeze()
     predict_score = np.array(predict_score).squeeze()
 
     recall = []
     true_bin = np.zeros_like(predict_score, dtype=bool)
-    true_bin[real_score.nonzero()] = True  #将测试集中非0的位置都变成True
+    true_bin[real_score.nonzero()] = True  
 
     for kj in topK:
-        idx_topk_part = np.argpartition(-predict_score, kj)  #每一行从大到小的顺序排序
+        idx_topk_part = np.argpartition(-predict_score, kj)  
 
         pre_bin = np.zeros_like(predict_score, dtype=bool)
         pre_bin[idx_topk_part[:kj]] = True
         # pre_bin[:,idx_topk_part[:,:kj]] = True
 
         tmp = (np.logical_and(true_bin, pre_bin).sum()).astype(np.float32)
-        recall.append(tmp / np.minimum(kj, true_bin.sum()))  #除以kj和测试集中交互总数的最小值
+        recall.append(tmp / np.minimum(kj, true_bin.sum()))  
 
     ndcg = []
 
     for kj in topK:
         idx_topk_part = np.argpartition(-predict_score, kj)
 
-        topk_part = predict_score[idx_topk_part[:kj]]#预测得分前50的得分，这个不是从大到小排的
+        topk_part = predict_score[idx_topk_part[:kj]]
         idx_part = np.argsort(-topk_part)
-        idx_topk = idx_topk_part[idx_part] #原始预测得分从大到小排序的索引
+        idx_topk = idx_topk_part[idx_part] 
 
         tp = np.log(2) / np.log(np.arange(2, kj + 2))
 
         DCG = (real_score[idx_topk] * tp).sum()
 
-        IDCG = (tp[:min(true_bin.sum(), kj)]).sum()  #这就是公式（17）中的Z,test_batch.getnnz(axis=1)表示test_batch中每一行非0元素的数量
+        IDCG = (tp[:min(true_bin.sum(), kj)]).sum()  
         ndcg.append(DCG / IDCG)
 
 
