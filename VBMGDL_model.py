@@ -79,7 +79,7 @@ class Model(object):
         kx = torch.ones((I, J, K))
         c = 5
         Aijk = (c * Y - 1 + Y) / 2
-        lam_kx = self.jisuan_lamb(kx)  # 需要定义该函数
+        lam_kx = self.jisuan_lamb(kx)  
         Bijk = (c * Y + 1 - Y) * lam_kx
         weight = torch.ones(R)
         P0 = tl.cp_to_tensor((weight, [G_mu, H_mu, W_mu]))
