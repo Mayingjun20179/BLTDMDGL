@@ -166,7 +166,7 @@ class Model(object):
         return P
 
 
-    # 需要定义的辅助函数
+    #
     def jisuan_lamb(self,kx):
         sig_kx = kx.sigmoid()
         lam_kx = 1.0 / (2 * kx) * (sig_kx - 0.5)
