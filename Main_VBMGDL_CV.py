@@ -10,7 +10,7 @@ import time
 from Evaluate import cv_tensor_model_evaluate,get_metrics,cal_recall_ndcg
 
 class Experiments(object):
-    def __init__(self, GHW_data, model_name='VBMGD',**kwargs):
+    def __init__(self, GHW_data, model_name='VBMGDL',**kwargs):
         super().__init__()
         self.GHW_data = GHW_data
         self.model_name = model_name
@@ -41,7 +41,7 @@ class Experiments(object):
             args = Const_hyper(args,self.GHW_data.mic_sim,self.GHW_data.dis_sim,train_tensor)
 
             self.model = Model(args, self.model_name)
-            predict_tensor = self.model.VBMGD(train_tensor, args)
+            predict_tensor = self.model.VBMGDL(train_tensor, args)
             #
             for i in range(20):
                 jieguo = cv_tensor_model_evaluate(self.GHW_data, predict_tensor, test_index, i, prop)
@@ -79,7 +79,7 @@ class Experiments(object):
             ###
             args = Const_hyper(args,self.GHW_data.mic_sim,self.GHW_data.dis_sim,train_tensor)
             self.model = Model(args, self.model_name)
-            predict_tensor = self.model.VBMGD(train_tensor, args).numpy()
+            predict_tensor = self.model.VBMGDL(train_tensor, args).numpy()
             adj_tensor = self.GHW_data.adj_tensor.numpy()
             result_g = 0
             N_test = np.array(test_index).shape[1]
@@ -123,7 +123,7 @@ class Experiments(object):
             ###
             args = Const_hyper(args,self.GHW_data.mic_sim,self.GHW_data.dis_sim,train_tensor)
             self.model = Model(args, self.model_name)
-            predict_tensor = self.model.VBMGD(train_tensor, args).numpy()
+            predict_tensor = self.model.VBMGDL(train_tensor, args).numpy()
             adj_tensor = self.GHW_data.adj_tensor.numpy()
             result_h = 0
             N_test = np.array(test_index).shape[1]
@@ -165,7 +165,7 @@ class Experiments(object):
             ##
             args = Const_hyper(args,self.GHW_data.mic_sim,self.GHW_data.dis_sim,train_tensor)
             self.model = Model(args, self.model_name)
-            predict_tensor = self.model.VBMGD(train_tensor, args).numpy()
+            predict_tensor = self.model.VBMGDL(train_tensor, args).numpy()
             adj_tensor = self.GHW_data.adj_tensor.numpy()
             result_w = 0
             N_test = np.array(test_index).shape[1]
@@ -200,7 +200,7 @@ if __name__ == '__main__':
     experiment = Experiments(GHW_data, model_name='VBMGD')
 
     # # CV_triplet
-    prop = [1,10,100]   #
+    prop = [1,10,100]   #1/ρ
     for kk in prop:
         start_time = time.time()
         args.triple = True
@@ -246,7 +246,7 @@ if __name__ == '__main__':
     args.G_num,args.H_num,args.W_num = GHW_data.N_drug,GHW_data.N_mic,GHW_data.N_dis
     experiment = Experiments(GHW_data, model_name='VBMGD')
     # CV_triplet
-    prop = [1,10,100]   #
+    prop = [1,10,100]   #1/ρ
     for kk in prop:
         start_time = time.time()
         args.triple = True
