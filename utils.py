@@ -16,64 +16,6 @@ def parse():
     p.add_argument('--epochs', type=int, default=50, help='number of epochs to train')
     return p.parse_args()
 
-class Metrics():
-    def __init__(self, step, test_data, predict_1, batch_size, top):
-        self.pair = []
-        self.step = step
-        self.test_data = test_data
-        self.predict_1 = predict_1
-        self.top = top
-        self.dcgsum = 0
-        self.idcgsum = 0
-        self.hit = 0
-        self.ndcg = 0
-        self.batch_size = batch_size
-        self.val_top = []
-
-    def hits_ndcg(self):
-        for i in range(self.step * self.batch_size, (self.step + 1) * self.batch_size):
-            g = []
-            g.extend([self.test_data[i, 3], self.predict_1[i].item()])
-            self.pair.append(g)
-        np.random.seed(1)
-        np.random.shuffle(self.pair)
-        pre_val = sorted(self.pair, key=lambda item: item[1], reverse=True)
-        self.val_top = pre_val[0: self.top]
-        for i in range(len(self.val_top)):
-            if self.val_top[i][0] == 1:
-                self.hit = self.hit + 1
-                self.dcgsum = (2 ** self.val_top[i][0] - 1) / np.log2(i + 2)
-                break
-        ideal_list = sorted(self.val_top, key=lambda item: item[0], reverse=True)
-        for i in range(len(ideal_list)):
-            if ideal_list[i][0] == 1:
-                self.idcgsum = (2 ** ideal_list[i][0] - 1) / np.log2(i + 2)
-                break
-        if self.idcgsum == 0:
-            self.ndcg = 0
-        else:
-            self.ndcg = self.dcgsum / self.idcgsum
-        if self.ndcg != self.dcgsum:
-            print('程序出错！'*10)
-        return self.hit, self.ndcg
-
-
-def hit_ndcg_value(pred_val, val_data, top):
-    loader_val = torch.utils.data.DataLoader(dataset=pred_val, batch_size=30, shuffle=False)
-    hits = 0
-    ndcg_val = 0
-    for step, batch_val in enumerate(loader_val):
-        metrix = Metrics(step, val_data, pred_val, batch_size=30, top=top)
-        hit, ndcg = metrix.hits_ndcg()
-        hits = hits + hit
-        ndcg_val = ndcg_val + ndcg
-    hits = hits / int((len(val_data)) / 30)
-    ndcg = ndcg_val / int((len(val_data)) / 30)
-    return hits, ndcg
-
-
-
-
 
 
 def reset(nn):

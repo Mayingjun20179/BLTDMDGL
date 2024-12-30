@@ -4,7 +4,7 @@ import numpy as np
 import scipy.io as sio
 import torch
 
-from DATA1_zhang.process_smiles import *
+from DATA1.process_smiles import *
 
 
 class GetData(object):

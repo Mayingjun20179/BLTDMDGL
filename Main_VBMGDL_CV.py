@@ -3,8 +3,8 @@ import tensorly as tl
 # tl.set_backend('numpy')
 import torch
 from utils import *
-from DATA1_zhang.data import GetData as GetData1
-from DATA2_accu.data import GetData as GetData2
+from DATA1.data import GetData as GetData1
+from DATA2.data import GetData as GetData2
 from VBMGDL_model import Model,set_seed
 from Evaluate import cv_tensor_model_evaluate,get_metrics,cal_recall_ndcg
 import pandas as pd
@@ -198,7 +198,7 @@ if __name__ == '__main__':
     ##### data1
     seed = 1
     set_seed(seed)
-    root = './DATA1_zhang'
+    root = './DATA1'
     GHW_data = GetData1(root)
     args.durg_inf = GHW_data.batch_drug.to(args.device)
     args.use_GMP = True
@@ -210,9 +210,9 @@ if __name__ == '__main__':
     for kk in prop:
         args.triple = True
         result_CV_triplet, result_CV_triplet100 = experiment.CV_triplet(args,kk)
-        file_path = './result1_zhang/VBMGD_triplet' +'_prop_'+str(kk)+ '.txt'
+        file_path = './result1/VBMGD_triplet' +'_prop_'+str(kk)+ '.txt'
         result_CV_triplet.to_csv(file_path, index=False, sep='\t')
-        file_path = './result1_zhang/VBMGD_triplet_100' +'_prop_'+str(kk)+ '.txt'
+        file_path = './result1/VBMGD_triplet_100' +'_prop_'+str(kk)+ '.txt'
         result_CV_triplet100.to_csv(file_path,sep='\t')
         print(result_CV_triplet)
     # #
@@ -220,7 +220,7 @@ if __name__ == '__main__':
     args.triple = False
     args.topK = [1,5,10]
     result_CV_drug = experiment.CV_drug(args)
-    file_path = './result1_zhang/VBMGD_drug' + '.txt'
+    file_path = './result1/VBMGD_drug' + '.txt'
     result_CV_drug.to_csv(file_path, index=False, sep='\t')
     print(result_CV_drug)
 
@@ -228,7 +228,7 @@ if __name__ == '__main__':
     args.triple = False
     args.topK = [1, 5, 10]
     result_CV_mic = experiment.CV_mic(args)
-    file_path = './result1_zhang/VBMGD_mic' + '.txt'
+    file_path = './result1/VBMGD_mic' + '.txt'
     result_CV_mic.to_csv(file_path,index=False, sep='\t')
     print(result_CV_mic)
 
@@ -236,7 +236,7 @@ if __name__ == '__main__':
     args.triple = False
     args.topK = [1,5,10]
     result_CV_dis = experiment.CV_dis(args)
-    file_path = './result1_zhang/VBMGD_dis' + '.txt'
+    file_path = './result1/VBMGD_dis' + '.txt'
     result_CV_dis.to_csv(file_path,index=False, sep='\t')
     print(result_CV_dis)
 
@@ -244,7 +244,7 @@ if __name__ == '__main__':
     #####data2
     seed = 1
     set_seed(seed)
-    root = './DATA2_accu'
+    root = './DATA2'
     GHW_data = GetData2(root)
     args.durg_inf = GHW_data.batch_drug.to(args.device)
     args.use_GMP = True
@@ -255,9 +255,9 @@ if __name__ == '__main__':
     for kk in prop:
         args.triple = True
         result_CV_triplet, result_CV_triplet100 = experiment.CV_triplet(args,kk)
-        file_path = './result2_accu/VBMGD_triplet' +'_prop_'+str(kk)+ '.txt'
+        file_path = './result2/VBMGD_triplet' +'_prop_'+str(kk)+ '.txt'
         result_CV_triplet.to_csv(file_path,index=False,sep='\t')
-        file_path = './result2_accu/VBMGD_triplet_100' +'_prop_'+str(kk)+ '.txt'
+        file_path = './result2/VBMGD_triplet_100' +'_prop_'+str(kk)+ '.txt'
         result_CV_triplet100.to_csv(file_path,sep='\t')
         print(result_CV_triplet)
 
@@ -265,21 +265,21 @@ if __name__ == '__main__':
     args.triple = False
     args.topK = [1,5,10]
     result_CV_drug = experiment.CV_drug(args)
-    file_path = './result2_accu/VBMGD_drug' + '.txt'
+    file_path = './result2/VBMGD_drug' + '.txt'
     result_CV_drug.to_csv(file_path,index=False,sep='\t')
     print(result_CV_drug)
     #
     #CV_mic
     args.triple = False
     result_CV_mic = experiment.CV_mic(args)
-    file_path = './result2_accu/VBMGD_mic' + '.txt'
+    file_path = './result2/VBMGD_mic' + '.txt'
     result_CV_mic.to_csv(file_path,index=False,sep='\t')
     print(result_CV_mic)
 
     #CV_dis
     args.triple = False
     result_CV_dis = experiment.CV_dis(args)
-    file_path = './result2_accu/VBMGD_dis' + '.txt'
+    file_path = './result2/VBMGD_dis' + '.txt'
     result_CV_dis.to_csv(file_path,index=False,sep='\t')
     print(result_CV_dis)
 

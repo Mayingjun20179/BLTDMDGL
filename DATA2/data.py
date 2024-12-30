@@ -6,7 +6,7 @@ import torch
 import pandas as pd
 
 
-from DATA2_accu.process_smiles import *
+from DATA2.process_smiles import *
 
 
 class GetData(object):
