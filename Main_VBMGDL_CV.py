@@ -194,7 +194,6 @@ if __name__ == '__main__':
     #
     args = parse()
     args.device = torch.device('cuda:0')
-    args.epochs = 1
     ##### data1
     seed = 1
     set_seed(seed)
