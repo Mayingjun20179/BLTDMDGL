@@ -99,7 +99,7 @@ class Experiments(object):
             print(result_g/N_test)
 
         result = pd.DataFrame(np.around(metrics[np.newaxis, :] / k_folds, decimals=4)[:,3:],
-                               columns=['HR@1', 'HR@0.1', 'HR@0.01','NDCG@1','NDCG@0.1','NDCG@0.01'])
+                               columns=['HR@1', 'HR@5', 'HR@10', 'NDCG@1', 'NDCG@5', 'NDCG@10'])
         return result
 
     def CV_mic(self,args):
@@ -143,7 +143,7 @@ class Experiments(object):
             print(result_h/N_test)
 
         result = pd.DataFrame(np.around(metrics[np.newaxis, :] / k_folds, decimals=4)[:, 3:],
-                              columns=['HR@1', 'HR@0.1', 'HR@0.01', 'NDCG@1', 'NDCG@0.1', 'NDCG@0.01'])
+                              columns=['HR@1', 'HR@5', 'HR@10', 'NDCG@1', 'NDCG@5', 'NDCG@10'])
         return result
 
     def CV_dis(self,args):
@@ -186,7 +186,7 @@ class Experiments(object):
             print(result_w/N_test)
 
         result = pd.DataFrame(np.around(metrics[np.newaxis, :] / k_folds, decimals=4)[:, 3:],
-                              columns=['HR@1', 'HR@0.1', 'HR@0.01', 'NDCG@1', 'NDCG@0.1', 'NDCG@0.01'])
+                              columns=['HR@1', 'HR@5', 'HR@10', 'NDCG@1', 'NDCG@5', 'NDCG@10'])
         return result
 
 
@@ -194,50 +194,50 @@ if __name__ == '__main__':
     #
     args = parse()
     args.device = torch.device('cuda:0')
-    ##### data1
-    seed = 1
-    set_seed(seed)
-    root = './DATA1'
-    GHW_data = GetData1(root)
-    args.durg_inf = GHW_data.batch_drug.to(args.device)
-    args.use_GMP = True
-    args.G_num,args.H_num,args.W_num = GHW_data.N_drug,GHW_data.N_mic,GHW_data.N_dis
-    experiment = Experiments(GHW_data, model_name='VBMGD')
-
-    # # CV_triplet
-    prop = [1,10,100]   #1/ρ
-    for kk in prop:
-        args.triple = True
-        result_CV_triplet, result_CV_triplet100 = experiment.CV_triplet(args,kk)
-        file_path = './result1/VBMGD_triplet' +'_prop_'+str(kk)+ '.txt'
-        result_CV_triplet.to_csv(file_path, index=False, sep='\t')
-        file_path = './result1/VBMGD_triplet_100' +'_prop_'+str(kk)+ '.txt'
-        result_CV_triplet100.to_csv(file_path,sep='\t')
-        print(result_CV_triplet)
-    # #
+    # ##### data1
+    # seed = 1
+    # set_seed(seed)
+    # root = './DATA1'
+    # GHW_data = GetData1(root)
+    # args.durg_inf = GHW_data.batch_drug.to(args.device)
+    # args.use_GMP = True
+    # args.G_num,args.H_num,args.W_num = GHW_data.N_drug,GHW_data.N_mic,GHW_data.N_dis
+    # experiment = Experiments(GHW_data, model_name='VBMGDL')
+    #
+    # # # CV_triplet
+    # prop = [1,10,100]   #1/ρ
+    # for kk in prop:
+    #     args.triple = True
+    #     result_CV_triplet, result_CV_triplet100 = experiment.CV_triplet(args,kk)
+    #     file_path = './result1/VBMGDL_triplet' +'_prop_'+str(kk)+ '.txt'
+    #     result_CV_triplet.to_csv(file_path, index=False, sep='\t')
+    #     file_path = './result1/VBMGDL_triplet_100' +'_prop_'+str(kk)+ '.txt'
+    #     result_CV_triplet100.to_csv(file_path,sep='\t')
+    #     print(result_CV_triplet)
+    # # #
     # #CV_drug
-    args.triple = False
-    args.topK = [1,5,10]
-    result_CV_drug = experiment.CV_drug(args)
-    file_path = './result1/VBMGD_drug' + '.txt'
-    result_CV_drug.to_csv(file_path, index=False, sep='\t')
-    print(result_CV_drug)
-
-    # CV_mic
-    args.triple = False
-    args.topK = [1, 5, 10]
-    result_CV_mic = experiment.CV_mic(args)
-    file_path = './result1/VBMGD_mic' + '.txt'
-    result_CV_mic.to_csv(file_path,index=False, sep='\t')
-    print(result_CV_mic)
-
-    #CV_dis
-    args.triple = False
-    args.topK = [1,5,10]
-    result_CV_dis = experiment.CV_dis(args)
-    file_path = './result1/VBMGD_dis' + '.txt'
-    result_CV_dis.to_csv(file_path,index=False, sep='\t')
-    print(result_CV_dis)
+    # args.triple = False
+    # args.topK = [1,5,10]
+    # result_CV_drug = experiment.CV_drug(args)
+    # file_path = './result1/VBMGDL_drug' + '.txt'
+    # result_CV_drug.to_csv(file_path, index=False, sep='\t')
+    # print(result_CV_drug)
+    #
+    # # CV_mic
+    # args.triple = False
+    # args.topK = [1, 5, 10]
+    # result_CV_mic = experiment.CV_mic(args)
+    # file_path = './result1/VBMGDL_mic' + '.txt'
+    # result_CV_mic.to_csv(file_path,index=False, sep='\t')
+    # print(result_CV_mic)
+    #
+    # #CV_dis
+    # args.triple = False
+    # args.topK = [1,5,10]
+    # result_CV_dis = experiment.CV_dis(args)
+    # file_path = './result1/VBMGDL_dis' + '.txt'
+    # result_CV_dis.to_csv(file_path,index=False, sep='\t')
+    # print(result_CV_dis)
 
 
     #####data2
@@ -248,15 +248,15 @@ if __name__ == '__main__':
     args.durg_inf = GHW_data.batch_drug.to(args.device)
     args.use_GMP = True
     args.G_num,args.H_num,args.W_num = GHW_data.N_drug,GHW_data.N_mic,GHW_data.N_dis
-    experiment = Experiments(GHW_data, model_name='VBMGD')
+    experiment = Experiments(GHW_data, model_name='VBMGDL')
     # CV_triplet
     prop = [1,10,100]   #1/ρ
     for kk in prop:
         args.triple = True
         result_CV_triplet, result_CV_triplet100 = experiment.CV_triplet(args,kk)
-        file_path = './result2/VBMGD_triplet' +'_prop_'+str(kk)+ '.txt'
+        file_path = './result2/VBMGDL_triplet' +'_prop_'+str(kk)+ '.txt'
         result_CV_triplet.to_csv(file_path,index=False,sep='\t')
-        file_path = './result2/VBMGD_triplet_100' +'_prop_'+str(kk)+ '.txt'
+        file_path = './result2/VBMGDL_triplet_100' +'_prop_'+str(kk)+ '.txt'
         result_CV_triplet100.to_csv(file_path,sep='\t')
         print(result_CV_triplet)
 
@@ -264,21 +264,21 @@ if __name__ == '__main__':
     args.triple = False
     args.topK = [1,5,10]
     result_CV_drug = experiment.CV_drug(args)
-    file_path = './result2/VBMGD_drug' + '.txt'
+    file_path = './result2/VBMGDL_drug' + '.txt'
     result_CV_drug.to_csv(file_path,index=False,sep='\t')
     print(result_CV_drug)
     #
     #CV_mic
     args.triple = False
     result_CV_mic = experiment.CV_mic(args)
-    file_path = './result2/VBMGD_mic' + '.txt'
+    file_path = './result2/VBMGDL_mic' + '.txt'
     result_CV_mic.to_csv(file_path,index=False,sep='\t')
     print(result_CV_mic)
 
     #CV_dis
     args.triple = False
     result_CV_dis = experiment.CV_dis(args)
-    file_path = './result2/VBMGD_dis' + '.txt'
+    file_path = './result2/VBMGDL_dis' + '.txt'
     result_CV_dis.to_csv(file_path,index=False,sep='\t')
     print(result_CV_dis)
 

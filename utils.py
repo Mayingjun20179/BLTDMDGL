@@ -13,7 +13,7 @@ def parse():
     p.add_argument('--rank', type=int, default=10, help='rank')
     p.add_argument('--lr', type=float, default=0.001, help='learning rate')
     p.add_argument('--L2',type=float,default=1e-4,help = 'weight_decay')
-    p.add_argument('--epochs', type=int, default=50, help='number of epochs to train')
+    p.add_argument('--epochs', type=int, default=100, help='number of epochs to train')
     return p.parse_args()
 
 

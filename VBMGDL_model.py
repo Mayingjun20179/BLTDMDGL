@@ -34,7 +34,7 @@ def set_seed(seed):
 
 
 class Model(object):
-    def __init__(self,args,name='VBMGD',**kwargs):
+    def __init__(self,args,name='VBMGDL',**kwargs):
         super().__init__()
         self.name = name
         self.model = Hybridgraphattention(
@@ -152,12 +152,12 @@ class Model(object):
                     optimizer.zero_grad()
                     FGHW = self.model(args)
                     loss = Loss_fun_opt(FGHW, GHW,lambdas,args)
-                    # loss.backward()
+                    loss.backward()
                     optimizer.step()
                     loss_train += loss.item()
                 FGHW = FGHW.detach().to('cpu')
                 Fg, Fh, Fw = FGHW[:I], FGHW[I:I + J], FGHW[I + J:]
-                print(FGHW.norm())
+                # print(FGHW.norm())
 
         # Prepare the results
         P0 = tl.cp_to_tensor((weight, [G_mu, H_mu, W_mu]))
