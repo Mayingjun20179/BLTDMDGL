@@ -7,7 +7,6 @@ Exploring the higher-order relationships of drugs, microbes, and diseases (DMD) 
 
 ![image](https://github.com/user-attachments/assets/22354f52-5652-4b98-80c0-e88529465d33)
 
-
 #Environment Requirement
 
 tensorly==0.8.1
