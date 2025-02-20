@@ -4,10 +4,10 @@ import argparse
 
 
 def parse():
-    p = argparse.ArgumentParser("VBMGDL: Variational Bayesian Inference with Hybrid Graph Deep Learning", formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    p = argparse.ArgumentParser("BLTDMGDL: Variational Bayesian Inference with Hybrid Graph Deep Learning", formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     p.add_argument('--data', type=str, default='DATA1_zhang', help='data name ')
     p.add_argument('--dataset', type=str, default='./DATA', help='dataset name')
-    p.add_argument('--model-name', type=str, default='VBMGDL', help='VBMGDL')
+    p.add_argument('--model-name', type=str, default='BLTDMGDL', help='BLTDMGDL')
     p.add_argument('--activation', type=str, default='tanh', help='activation layer between MGConvs')
     p.add_argument('--nlayer', type=int, default=2, help='number of hidden layers')
     p.add_argument('--rank', type=int, default=10, help='rank')
