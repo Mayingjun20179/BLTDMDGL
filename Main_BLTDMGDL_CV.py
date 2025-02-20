@@ -5,13 +5,13 @@ import torch
 from utils import *
 from DATA1.data import GetData as GetData1
 from DATA2.data import GetData as GetData2
-from VBMGDL_model import Model,set_seed
+from BLTDMGDL_model import Model,set_seed
 from Evaluate import cv_tensor_model_evaluate,get_metrics,cal_recall_ndcg
 import pandas as pd
 
 
 class Experiments(object):
-    def __init__(self, GHW_data, model_name='VBMGDL',**kwargs):
+    def __init__(self, GHW_data, model_name='BLTDMGDL',**kwargs):
         super().__init__()
         self.GHW_data = GHW_data
         self.model_name = model_name
@@ -41,9 +41,9 @@ class Experiments(object):
             ###Constructing Hybrid graphs
             args = Const_hyper(args,self.GHW_data.mic_sim,self.GHW_data.dis_sim,train_tensor)
 
-            #Predictions of the VBMGDL model
+            #Predictions of the BLTDMGDL model
             self.model = Model(args, self.model_name)
-            predict_tensor = self.model.VBMGDL(train_tensor, args)
+            predict_tensor = self.model.BLTDMGDL(train_tensor, args)
 
             #Randomized Generation of Test Negatives and Model Evaluation
             for i in range(20):
@@ -82,7 +82,7 @@ class Experiments(object):
             ###
             args = Const_hyper(args,self.GHW_data.mic_sim,self.GHW_data.dis_sim,train_tensor)
             self.model = Model(args, self.model_name)
-            predict_tensor = self.model.VBMGDL(train_tensor, args).numpy()
+            predict_tensor = self.model.BLTDMGDL(train_tensor, args).numpy()
             adj_tensor = self.GHW_data.adj_tensor.numpy()
             result_g = 0
             N_test = np.array(test_index).shape[1]
@@ -127,7 +127,7 @@ class Experiments(object):
             ###
             args = Const_hyper(args,self.GHW_data.mic_sim,self.GHW_data.dis_sim,train_tensor)
             self.model = Model(args, self.model_name)
-            predict_tensor = self.model.VBMGDL(train_tensor, args).numpy()
+            predict_tensor = self.model.BLTDMGDL(train_tensor, args).numpy()
             adj_tensor = self.GHW_data.adj_tensor.numpy()
             result_h = 0
             N_test = np.array(test_index).shape[1]
@@ -170,7 +170,7 @@ class Experiments(object):
             ##
             args = Const_hyper(args,self.GHW_data.mic_sim,self.GHW_data.dis_sim,train_tensor)
             self.model = Model(args, self.model_name)
-            predict_tensor = self.model.VBMGDL(train_tensor, args).numpy()
+            predict_tensor = self.model.BLTDMGDL(train_tensor, args).numpy()
             adj_tensor = self.GHW_data.adj_tensor.numpy()
             result_w = 0
             N_test = np.array(test_index).shape[1]
@@ -202,16 +202,16 @@ if __name__ == '__main__':
     args.durg_inf = GHW_data.batch_drug.to(args.device)
     args.use_GMP = True
     args.G_num,args.H_num,args.W_num = GHW_data.N_drug,GHW_data.N_mic,GHW_data.N_dis
-    experiment = Experiments(GHW_data, model_name='VBMGDL')
+    experiment = Experiments(GHW_data, model_name='BLTDMGDL')
 
     # # CV_triplet
     prop = [1,10,100]   #1/ρ
     for kk in prop:
         args.triple = True
         result_CV_triplet, result_CV_triplet100 = experiment.CV_triplet(args,kk)
-        file_path = './result1/VBMGDL_triplet' +'_prop_'+str(kk)+ '.txt'
+        file_path = './result1/BLTDMGDL_triplet' +'_prop_'+str(kk)+ '.txt'
         result_CV_triplet.to_csv(file_path, index=False, sep='\t')
-        file_path = './result1/VBMGDL_triplet_100' +'_prop_'+str(kk)+ '.txt'
+        file_path = './result1/BLTDMGDL_triplet_100' +'_prop_'+str(kk)+ '.txt'
         result_CV_triplet100.to_csv(file_path,sep='\t')
         print(result_CV_triplet)
     # #
@@ -219,7 +219,7 @@ if __name__ == '__main__':
     args.triple = False
     args.topK = [1,5,10]
     result_CV_drug = experiment.CV_drug(args)
-    file_path = './result1/VBMGDL_drug' + '.txt'
+    file_path = './result1/BLTDMGDL_drug' + '.txt'
     result_CV_drug.to_csv(file_path, index=False, sep='\t')
     print(result_CV_drug)
 
@@ -227,7 +227,7 @@ if __name__ == '__main__':
     args.triple = False
     args.topK = [1, 5, 10]
     result_CV_mic = experiment.CV_mic(args)
-    file_path = './result1/VBMGDL_mic' + '.txt'
+    file_path = './result1/BLTDMGDL_mic' + '.txt'
     result_CV_mic.to_csv(file_path,index=False, sep='\t')
     print(result_CV_mic)
 
@@ -235,7 +235,7 @@ if __name__ == '__main__':
     args.triple = False
     args.topK = [1,5,10]
     result_CV_dis = experiment.CV_dis(args)
-    file_path = './result1/VBMGDL_dis' + '.txt'
+    file_path = './result1/BLTDMGDL_dis' + '.txt'
     result_CV_dis.to_csv(file_path,index=False, sep='\t')
     print(result_CV_dis)
 
@@ -248,15 +248,15 @@ if __name__ == '__main__':
     args.durg_inf = GHW_data.batch_drug.to(args.device)
     args.use_GMP = True
     args.G_num,args.H_num,args.W_num = GHW_data.N_drug,GHW_data.N_mic,GHW_data.N_dis
-    experiment = Experiments(GHW_data, model_name='VBMGDL')
+    experiment = Experiments(GHW_data, model_name='BLTDMGDL')
     # CV_triplet
     prop = [1,10,100]   #1/ρ
     for kk in prop:
         args.triple = True
         result_CV_triplet, result_CV_triplet100 = experiment.CV_triplet(args,kk)
-        file_path = './result2/VBMGDL_triplet' +'_prop_'+str(kk)+ '.txt'
+        file_path = './result2/BLTDMGDL_triplet' +'_prop_'+str(kk)+ '.txt'
         result_CV_triplet.to_csv(file_path,index=False,sep='\t')
-        file_path = './result2/VBMGDL_triplet_100' +'_prop_'+str(kk)+ '.txt'
+        file_path = './result2/BLTDMGDL_triplet_100' +'_prop_'+str(kk)+ '.txt'
         result_CV_triplet100.to_csv(file_path,sep='\t')
         print(result_CV_triplet)
 
@@ -264,21 +264,21 @@ if __name__ == '__main__':
     args.triple = False
     args.topK = [1,5,10]
     result_CV_drug = experiment.CV_drug(args)
-    file_path = './result2/VBMGDL_drug' + '.txt'
+    file_path = './result2/BLTDMGDL_drug' + '.txt'
     result_CV_drug.to_csv(file_path,index=False,sep='\t')
     print(result_CV_drug)
     #
     #CV_mic
     args.triple = False
     result_CV_mic = experiment.CV_mic(args)
-    file_path = './result2/VBMGDL_mic' + '.txt'
+    file_path = './result2/BLTDMGDL_mic' + '.txt'
     result_CV_mic.to_csv(file_path,index=False,sep='\t')
     print(result_CV_mic)
 
     #CV_dis
     args.triple = False
     result_CV_dis = experiment.CV_dis(args)
-    file_path = './result2/VBMGDL_dis' + '.txt'
+    file_path = './result2/BLTDMGDL_dis' + '.txt'
     result_CV_dis.to_csv(file_path,index=False,sep='\t')
     print(result_CV_dis)
 

@@ -34,14 +34,14 @@ def set_seed(seed):
 
 
 class Model(object):
-    def __init__(self,args,name='VBMGDL',**kwargs):
+    def __init__(self,args,name='BLTDMGDL',**kwargs):
         super().__init__()
         self.name = name
         self.model = Hybridgraphattention(
             GcnEncoder(dim_H=args.rank, dim_W=args.rank,output=args.rank,args = args),
             HgnnEncoder(in_channels = args.rank,out_channels=args.rank,args = args),args).to(args.device)
         self.paramater = kwargs
-    def VBMGDL(self,Y,args):
+    def BLTDMGDL(self,Y,args):
         I, J, K = Y.shape
         R = args.rank
         G_mu = torch.randn(I, R)
