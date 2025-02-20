@@ -5,7 +5,7 @@ Exploring potential associations among drugs, microbes, and diseases provides va
 
 #The workflow of our proposed BLTDMDGL model
 
-![image](https://github.com/Mayingjun20179/VBMGDL/blob/main/workflow.png)
+![image](https://github.com/Mayingjun20179/BLTDMDGL/blob/main/workflow.png)
 
 #Environment Requirement
 
